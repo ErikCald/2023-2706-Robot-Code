@@ -208,6 +208,8 @@ public class Config {
      */
     public static double METERS_IN_ONE_FOOT = 0.3048;
 
+    public static double POSEESTIMATOR_VISION_ALLOWABLE_ERROR = 1;
+
 
     /**
      * Networktables
