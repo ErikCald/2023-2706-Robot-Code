@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix.sensors.PigeonIMU;
 
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -44,7 +45,8 @@ public class SwerveSubsystem extends SubsystemBase {
     private final PigeonIMU m_pigeon; 
 
     // Odometry class for tracking robot pose
-    SwerveDriveOdometry m_odometry;
+    SwerveDrivePoseEstimator m_poseEstimator;
+    PoseEstimatorVisionCalculation m_poseEstimatorVisionCalculation;
 
     /** Get instance of singleton class */
     public static SwerveSubsystem getInstance() {
@@ -60,14 +62,20 @@ public class SwerveSubsystem extends SubsystemBase {
     private SwerveSubsystem() {
         m_pigeon = new PigeonIMU(Config.CANID.PIGEON);
 
-        m_odometry = new SwerveDriveOdometry(
-                    Config.Swerve.kSwerveDriveKinematics, 
-                    Rotation2d.fromDegrees(getGyro()),
-                    new SwerveModulePosition[]{
-                        m_frontLeft.getModulePosition(),
-                        m_frontRight.getModulePosition(),
-                        m_rearLeft.getModulePosition(),
-                        m_rearRight.getModulePosition()});
+        m_poseEstimator = new SwerveDrivePoseEstimator(
+                Config.Swerve.kSwerveDriveKinematics, 
+                Rotation2d.fromDegrees(getGyro()),
+                new SwerveModulePosition[]{
+                    m_frontLeft.getModulePosition(),
+                    m_frontRight.getModulePosition(),
+                    m_rearLeft.getModulePosition(),
+                    m_rearRight.getModulePosition()},
+                new Pose2d());
+
+        m_poseEstimatorVisionCalculation = new PoseEstimatorVisionCalculation(
+                this::getHeading, 
+                this::getPose, 
+                this::newVisionMeasurement);
     }
 
     @Override
@@ -79,15 +87,17 @@ public class SwerveSubsystem extends SubsystemBase {
         m_rearLeft.updateNT();
         m_rearRight.updateNT();
 
+        m_poseEstimatorVisionCalculation.update();
 
         // Update the odometry in the periodic block
-        m_odometry.update(
+        m_poseEstimator.update(
                 Rotation2d.fromDegrees(currentGyro),
                 new SwerveModulePosition[]{
                     m_frontLeft.getModulePosition(),
                     m_frontRight.getModulePosition(),
                     m_rearLeft.getModulePosition(),
                     m_rearRight.getModulePosition()});
+        
         
         gyroEntry.setDouble(currentGyro);
         xEntry.setDouble(getPose().getX());
@@ -102,7 +112,7 @@ public class SwerveSubsystem extends SubsystemBase {
      * @return The pose.
      */
     public Pose2d getPose() {
-        return m_odometry.getPoseMeters();
+        return m_poseEstimator.getEstimatedPosition();
     }
 
     /**
@@ -111,7 +121,7 @@ public class SwerveSubsystem extends SubsystemBase {
      * @param pose The pose to which to set the odometry.
      */
     public void resetOdometry(Pose2d pose) {
-        m_odometry.resetPosition(
+        m_poseEstimator.resetPosition(
             Rotation2d.fromDegrees(getGyro()),
             new SwerveModulePosition[]{
                 m_frontLeft.getModulePosition(),
@@ -119,6 +129,16 @@ public class SwerveSubsystem extends SubsystemBase {
                 m_rearLeft.getModulePosition(),
                 m_rearRight.getModulePosition()},
             pose);
+    }
+
+    /**
+     * Add a new vision measurement to the pose estimator
+     * 
+     * @param robotPose Calculated Pose2d of the robot's location.
+     * @param timestamp in seconds of when the image was taken.
+     */
+    public void newVisionMeasurement(Pose2d robotPose, double timestamp) {
+        m_poseEstimator.addVisionMeasurement(robotPose, timestamp);
     }
 
     /**
@@ -179,7 +199,7 @@ public class SwerveSubsystem extends SubsystemBase {
      * @return the robot's heading in degrees, from -180 to 180
      */
     public Rotation2d getHeading() {
-        return m_odometry.getPoseMeters().getRotation();
+        return m_poseEstimator.getEstimatedPosition().getRotation();
     }
 
     /**
