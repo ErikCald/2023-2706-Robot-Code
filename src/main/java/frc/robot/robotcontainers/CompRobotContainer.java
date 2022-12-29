@@ -8,8 +8,12 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.Robot;
+import frc.robot.commands.TestingNT;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
 /**
@@ -33,8 +37,13 @@ public class CompRobotContainer extends RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    Joystick driverStick = new Joystick(0);
+    Joystick driverStic1k = new Joystick(0);
     Joystick controlStick = new Joystick(1);
+
+    CommandXboxController driverStick = new CommandXboxController(1);
+    driverStick.a().onTrue(new InstantCommand());
+    driverStick.back().whileTrue(new InstantCommand());
+    
  }
 
   /**
@@ -44,6 +53,12 @@ public class CompRobotContainer extends RobotContainer {
    */
   @Override
   public Command getAutonomousCommand() {
-    return new InstantCommand(); 
+    return new SequentialCommandGroup(
+      new TestingNT(false, false),
+      new WaitCommand(0.2),
+      new TestingNT(true, false),
+      new WaitCommand(0.2),
+      new TestingNT(false, true)
+    );
   }
 }

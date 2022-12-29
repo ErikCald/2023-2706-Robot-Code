@@ -20,6 +20,7 @@ import frc.robot.robotcontainers.MiniSwerveContainer;
 import frc.robot.robotcontainers.RobotContainer;
 import frc.robot.subsystems.DiffNeoSubsystem;
 import frc.robot.subsystems.DiffTalonSubsystem;
+import frc.robot.subsystems.EstimatorMathTesting;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -144,6 +145,8 @@ public class Robot extends TimedRobot {
   public void testInit() {
     // Cancels all running commands at the start of test mode.
     CommandScheduler.getInstance().cancelAll();
+
+    new EstimatorMathTesting();
   }
 
   /** This function is called periodically during test mode. */

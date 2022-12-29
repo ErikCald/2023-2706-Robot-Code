@@ -12,10 +12,14 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import org.photonvision.targeting.PhotonPipelineResult;
+import org.photonvision.targeting.PhotonTrackedTarget;
+
 import edu.wpi.first.math.ComputerVisionUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -32,6 +36,7 @@ import frc.robot.config.Config;
 public class VisionRobotPose {
     private final Transform3d cameraTransform3d = new Transform3d(); // Get from config based on which camera is running 
 
+    private final Pose2d cameraPose = new Pose2d();
 
     private Supplier<Rotation2d> m_getGyroHeading;
     private Supplier<Pose2d> m_getPoseEstimate;
@@ -54,7 +59,7 @@ public class VisionRobotPose {
     }
 
     public void update() {
-        
+
         /**
          * Get from vision
          */ 
@@ -89,20 +94,10 @@ public class VisionRobotPose {
             return;
         }
         Pose3d fieldToTarget = aprilTagPose3d.get();
-        
-        // Calculate cameraToTarget, relative to camera, measured by vision team
-        Translation3d cameraToTarget = new Translation3d(
-            distance * Math.cos(yaw),
-            distance * Math.sin(yaw),
-            fieldToTarget.getZ() - cameraTransform3d.getZ());
 
-        Pose2d robotPose = ComputerVisionUtil.estimateFieldToRobot(
-            ComputerVisionUtil.estimateCameraToTarget( // estimateCameraToTarget rotates cameraToTarget into the field coordinate system
-                cameraToTarget, 
-                fieldToTarget, 
-                m_getGyroHeading.get()),
-            fieldToTarget,
-            cameraTransform3d).toPose2d();
+        Rotation2d headingFromGyro = new Rotation2d();
+        
+        Pose2d robotPose = EstimatorMathTesting.distAndYawToRobotPose(distance, yaw, headingFromGyro, fieldToTarget, cameraPose);
 
         Translation2d estimatorTranslation = m_getPoseEstimate.get().getTranslation();
         
@@ -138,4 +133,21 @@ public class VisionRobotPose {
     }
 
 
+    public Translation2d estimatorMath(double visionDistance, double visionYaw, Pose3d fieldToTarget, Transform3d robotToCamera) {
+        Transform3d cameraToTarget = new Transform3d(
+            new Translation3d(
+                visionDistance * Math.cos(visionYaw),
+                visionDistance * Math.sin(visionYaw),
+                0), //fieldToTarget.getZ() - cameraTransform3d.getZ()),
+            new Rotation3d());
+        return ComputerVisionUtil.objectToRobotPose(fieldToTarget, cameraToTarget, robotToCamera).toPose2d().getTranslation();
+    }
+
+
+    public void testMath(Translation2d expected, Translation2d actual, String message) {
+        System.out.printf("\n\n%s \nExpected: %s\n  Actual: %s \n\n", message, expected.toString(), actual.toString());
+    }
+
+
 }
+
