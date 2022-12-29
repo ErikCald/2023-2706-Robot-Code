@@ -11,6 +11,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
@@ -58,7 +59,15 @@ public class SwerveSubsystem extends SubsystemBase {
     /** Creates a new DriveSubsystem. */
     private SwerveSubsystem() {
         m_pigeon = new PigeonIMU(Config.CANID.PIGEON);
-        m_odometry = new SwerveDriveOdometry(Config.Swerve.kSwerveDriveKinematics, Rotation2d.fromDegrees(getGyro()));
+
+        m_odometry = new SwerveDriveOdometry(
+                    Config.Swerve.kSwerveDriveKinematics, 
+                    Rotation2d.fromDegrees(getGyro()),
+                    new SwerveModulePosition[]{
+                        m_frontLeft.getModulePosition(),
+                        m_frontRight.getModulePosition(),
+                        m_rearLeft.getModulePosition(),
+                        m_rearRight.getModulePosition()});
     }
 
     @Override
@@ -74,10 +83,11 @@ public class SwerveSubsystem extends SubsystemBase {
         // Update the odometry in the periodic block
         m_odometry.update(
                 Rotation2d.fromDegrees(currentGyro),
-                m_frontLeft.getState(),
-                m_frontRight.getState(),
-                m_rearLeft.getState(),
-                m_rearRight.getState());
+                new SwerveModulePosition[]{
+                    m_frontLeft.getModulePosition(),
+                    m_frontRight.getModulePosition(),
+                    m_rearLeft.getModulePosition(),
+                    m_rearRight.getModulePosition()});
         
         gyroEntry.setDouble(currentGyro);
         xEntry.setDouble(getPose().getX());
@@ -101,7 +111,14 @@ public class SwerveSubsystem extends SubsystemBase {
      * @param pose The pose to which to set the odometry.
      */
     public void resetOdometry(Pose2d pose) {
-        m_odometry.resetPosition(pose, Rotation2d.fromDegrees(getGyro()));
+        m_odometry.resetPosition(
+            Rotation2d.fromDegrees(getGyro()),
+            new SwerveModulePosition[]{
+                m_frontLeft.getModulePosition(),
+                m_frontRight.getModulePosition(),
+                m_rearLeft.getModulePosition(),
+                m_rearRight.getModulePosition()},
+            pose);
     }
 
     /**

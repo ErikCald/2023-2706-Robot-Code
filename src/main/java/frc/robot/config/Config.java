@@ -1,5 +1,6 @@
 package frc.robot.config;
 
+import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -165,23 +166,29 @@ public class Config {
         public static final double drive_kI = 0.002; // Depends on hardware differences.
         public static final double drive_kD =1.0;
         
-        public static FluidConstant<Double> fluid_drive_kFF = new FluidConstant<>("Drive kFF", drive_kFF, true)
-                        .registerToTable(NetworkTableInstance.getDefault().getTable("SwerveModule"));
+        public static NetworkTable swerveModuleTable = NetworkTableInstance.getDefault().getTable("SwerveModule");
 
-        public static FluidConstant<Double> fluid_drive_kP = new FluidConstant<>("Drive kP", drive_kP, true)
-                        .registerToTable(NetworkTableInstance.getDefault().getTable("SwerveModule"));
+        // public static FluidConstantDEPRECATED<Double> fluid_drive_kFF = new FluidConstantDEPRECATED<>("Drive kFF", drive_kFF, true)
+        //                 .registerToTable(NetworkTableInstance.getDefault().getTable("SwerveModule"));
 
-        public static FluidConstant<Double> fluid_drive_kI = new FluidConstant<>("Drive kI", drive_kI, true)
-                        .registerToTable(NetworkTableInstance.getDefault().getTable("SwerveModule"));
+        // public static FluidConstantDEPRECATED<Double> fluid_drive_kP = new FluidConstantDEPRECATED<>("Drive kP", drive_kP, true)
+        //                 .registerToTable(NetworkTableInstance.getDefault().getTable("SwerveModule"));
+
+        // public static FluidConstantDEPRECATED<Double> fluid_drive_kI = new FluidConstantDEPRECATED<>("Drive kI", drive_kI, true)
+        //                 .registerToTable(NetworkTableInstance.getDefault().getTable("SwerveModule"));
 
 
-        public static FluidConstant<Double> fluid_drive_kD = new FluidConstant<>("Drive kD", drive_kD, true)
-                        .registerToTable(NetworkTableInstance.getDefault().getTable("SwerveModule"));
+        // public static FluidConstantDEPRECATED<Double> fluid_drive_kD = new FluidConstantDEPRECATED<>("Drive kD", drive_kD, true)
+        //                 .registerToTable(NetworkTableInstance.getDefault().getTable("SwerveModule"));
 
-        public static FluidConstant<Double> fluid_drive_kIZone = new FluidConstant<>("Drive kIZone", drive_kI, true)
-                        .registerToTable(NetworkTableInstance.getDefault().getTable("SwerveModule"));
+        // public static FluidConstantDEPRECATED<Double> fluid_drive_kIZone = new FluidConstantDEPRECATED<>("Drive kIZone", drive_kI, true)
+        //                 .registerToTable(NetworkTableInstance.getDefault().getTable("SwerveModule"));
 
-    
+        public static DoubleSubscriber sub_drive_kFF = swerveModuleTable.getDoubleTopic("drive kFF").subscribe(drive_kFF);
+        public static DoubleSubscriber sub_drive_kP = swerveModuleTable.getDoubleTopic("drive kFF").subscribe(drive_kP);
+        public static DoubleSubscriber sub_drive_kI = swerveModuleTable.getDoubleTopic("drive kFF").subscribe(drive_kI);
+        public static DoubleSubscriber sub_drive_kD = swerveModuleTable.getDoubleTopic("drive kFF").subscribe(drive_kD);
+        public static DoubleSubscriber sub_drive_kIZone = swerveModuleTable.getDoubleTopic("drive kFF").subscribe(drive_kIZone);
 
         public static final double steering_kFF = 0.0;
         public static final double steering_kP = 0.25;
@@ -189,20 +196,29 @@ public class Config {
         public static final double steering_kD = 0.05;
         public static final double steering_kIZone = 0.0; //5 degrees
 
-        public static FluidConstant<Double> fluid_steering_kFF = new FluidConstant<>("Steering kFF", steering_kFF, true)
-                        .registerToTable(NetworkTableInstance.getDefault().getTable("SwerveModule"));
+        // public static FluidConstantDEPRECATED<Double> fluid_steering_kFF = new FluidConstantDEPRECATED<>("Steering kFF", steering_kFF, true)
+        //                 .registerToTable(NetworkTableInstance.getDefault().getTable("SwerveModule"));
 
-        public static FluidConstant<Double> fluid_steering_kP = new FluidConstant<>("Steering kP", steering_kP, true)
-                        .registerToTable(NetworkTableInstance.getDefault().getTable("SwerveModule"));
+        // public static FluidConstantDEPRECATED<Double> fluid_steering_kP = new FluidConstantDEPRECATED<>("Steering kP", steering_kP, true)
+        //                 .registerToTable(NetworkTableInstance.getDefault().getTable("SwerveModule"));
 
-        public static FluidConstant<Double> fluid_steering_kI = new FluidConstant<>("Steering kI", steering_kI, true)
-                        .registerToTable(NetworkTableInstance.getDefault().getTable("SwerveModule"));
+        // public static FluidConstantDEPRECATED<Double> fluid_steering_kI = new FluidConstantDEPRECATED<>("Steering kI", steering_kI, true)
+        //                 .registerToTable(NetworkTableInstance.getDefault().getTable("SwerveModule"));
 
-        public static FluidConstant<Double> fluid_steering_kD = new FluidConstant<>("Steering kD", steering_kD, true)
-                        .registerToTable(NetworkTableInstance.getDefault().getTable("SwerveModule"));
+        // public static FluidConstantDEPRECATED<Double> fluid_steering_kD = new FluidConstantDEPRECATED<>("Steering kD", steering_kD, true)
+        //                 .registerToTable(NetworkTableInstance.getDefault().getTable("SwerveModule"));
                         
-        public static FluidConstant<Double> fluid_steering_kIZone = new FluidConstant<>("Steering kIZone", steering_kI, true)
-                        .registerToTable(NetworkTableInstance.getDefault().getTable("SwerveModule"));
+        // public static FluidConstantDEPRECATED<Double> fluid_steering_kIZone = new FluidConstantDEPRECATED<>("Steering kIZone", steering_kI, true)
+        //                 .registerToTable(NetworkTableInstance.getDefault().getTable("SwerveModule"));
+
+        public static DoubleSubscriber sub_steering_kFF = swerveModuleTable.getDoubleTopic("Steering kFF").subscribe(steering_kFF);
+        public static DoubleSubscriber sub_steering_kP = swerveModuleTable.getDoubleTopic("Steering kFF").subscribe(steering_kP);
+        public static DoubleSubscriber sub_steering_kI = swerveModuleTable.getDoubleTopic("Steering kFF").subscribe(steering_kI);
+        public static DoubleSubscriber sub_steering_kD = swerveModuleTable.getDoubleTopic("Steering kFF").subscribe(steering_kD);
+        public static DoubleSubscriber sub_steering_kIZone = swerveModuleTable.getDoubleTopic("Steering kFF").subscribe(steering_kIZone);
+
+
+
         // Distance between centers of right and left wheels on robot
 
         public static final SwerveDriveKinematics kSwerveDriveKinematics = new SwerveDriveKinematics(
@@ -221,14 +237,18 @@ public class Config {
         public static final double driveKV = 2.44;
         public static final double driveKA = 0.27;
 
-        public static FluidConstant<Double> fluid_kA = new FluidConstant<>("Drive kA", driveKA, true)
-                        .registerToTable(NetworkTableInstance.getDefault().getTable("SwerveModule")); 
+        // public static FluidConstantDEPRECATED<Double> fluid_kA = new FluidConstantDEPRECATED<>("Drive kA", driveKA, true)
+        //                 .registerToTable(NetworkTableInstance.getDefault().getTable("SwerveModule")); 
         
-        public static FluidConstant<Double> fluid_kV = new FluidConstant<>("Drive kV", driveKV, true)
-                        .registerToTable(NetworkTableInstance.getDefault().getTable("SwerveModule"));
+        // public static FluidConstantDEPRECATED<Double> fluid_kV = new FluidConstantDEPRECATED<>("Drive kV", driveKV, true)
+        //                 .registerToTable(NetworkTableInstance.getDefault().getTable("SwerveModule"));
 
-        public static FluidConstant<Double> fluid_kS = new FluidConstant<>("Drive kS", driveKS, true)
-                        .registerToTable(NetworkTableInstance.getDefault().getTable("SwerveModule"));     
+        // public static FluidConstantDEPRECATED<Double> fluid_kS = new FluidConstantDEPRECATED<>("Drive kS", driveKS, true)
+        //                 .registerToTable(NetworkTableInstance.getDefault().getTable("SwerveModule"));    
+        
+        public static DoubleSubscriber sub_drive_kS = swerveModuleTable.getDoubleTopic("Drive kS").subscribe(driveKS);
+        public static DoubleSubscriber sub_drive_kV = swerveModuleTable.getDoubleTopic("Drive kV").subscribe(driveKV);
+        public static DoubleSubscriber sub_drive_kA = swerveModuleTable.getDoubleTopic("Drive kA").subscribe(driveKA);
                         
         public static final TrapezoidProfile.Constraints kThetaControllerConstraints = new TrapezoidProfile.Constraints(
             kMaxAutoAngularSpeed, kMaxAutoAngularAcceleration);

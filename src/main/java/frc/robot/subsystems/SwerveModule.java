@@ -16,6 +16,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
@@ -70,11 +71,11 @@ public class SwerveModule {
         m_driveMotor.burnFlash();
 
         m_drivePIDController = m_driveMotor.getPIDController();
-        m_drivePIDController.setP(Config.Swerve.fluid_drive_kP.get());
-        m_drivePIDController.setI(Config.Swerve.fluid_drive_kI.get());
-        m_drivePIDController.setD(Config.Swerve.fluid_drive_kD.get());
-        m_drivePIDController.setIZone(Config.Swerve.fluid_drive_kIZone.get());
-        m_drivePIDController.setFF(Config.Swerve.fluid_drive_kFF.get());   
+        m_drivePIDController.setP(Config.Swerve.sub_drive_kP.get());
+        m_drivePIDController.setI(Config.Swerve.sub_drive_kI.get());
+        m_drivePIDController.setD(Config.Swerve.sub_drive_kD.get());
+        m_drivePIDController.setIZone(Config.Swerve.sub_drive_kIZone.get());
+        m_drivePIDController.setFF(Config.Swerve.sub_drive_kFF.get());   
         CANSparkMaxUtil.setCANSparkMaxBusUsage(m_driveMotor, Usage.kPositionOnly);
         
         m_turningMotor = new CANSparkMax(turningCanID, MotorType.kBrushless);
@@ -92,11 +93,11 @@ public class SwerveModule {
         m_turningEncoder = m_turningMotor.getEncoder();
         m_turningEncoder.setPositionConversionFactor(Config.Swerve.turningEncoderConstant);
 
-        m_turningPIDController.setP(Config.Swerve.fluid_steering_kP.get());
-        m_turningPIDController.setI(Config.Swerve.fluid_steering_kI.get());
-        m_turningPIDController.setD(Config.Swerve.fluid_steering_kD.get());
-        m_turningPIDController.setIZone(Config.Swerve.fluid_steering_kIZone.get());
-        m_turningPIDController.setFF(Config.Swerve.fluid_steering_kFF.get());
+        m_turningPIDController.setP(Config.Swerve.sub_steering_kP.get());
+        m_turningPIDController.setI(Config.Swerve.sub_steering_kI.get());
+        m_turningPIDController.setD(Config.Swerve.sub_steering_kD.get());
+        m_turningPIDController.setIZone(Config.Swerve.sub_steering_kIZone.get());
+        m_turningPIDController.setFF(Config.Swerve.sub_steering_kFF.get());
         m_turningMotor.burnFlash();
 
         String tableName = "Swerve Chassis/SwerveModule" + ModuleName;
@@ -136,6 +137,15 @@ public class SwerveModule {
      */
     public SwerveModuleState getState() {   
         return new SwerveModuleState(getVelocity(), getSteeringAngle());
+    }
+
+    /**
+     * Returns the current position of the module.
+     * 
+     * @return The current position of the module
+     */
+    public SwerveModulePosition getModulePosition() {
+        return new SwerveModulePosition(getWheelDistance(), getSteeringAngle());
     }
 
     /**
@@ -184,10 +194,20 @@ public class SwerveModule {
      * @return meters per second of the wheel
      */
     public double getVelocity() {
-
-        // CODE: Read encoder velocity from drive SparkMax and return m/s. (VelocityConversionFactor set so SparkMax returns m/s))
-        
         return m_driveEncoder.getVelocity();
+    }
+
+    /**
+     * 
+     * TODO: THIS CURRENTLY DOES NOT USE THE CORRECT UNITS.
+     * MAKE SURE TO SET THE POSITION CONVERSION FACTOR FOR THE DRIVE MOTOR.
+     * 
+     * Returns the position of the wheel in meters
+     * 
+     * @return meters the wheel has traveled
+     */
+    public double getWheelDistance() {
+        return m_driveEncoder.getPosition();
     }
 
     /**
@@ -214,19 +234,19 @@ public class SwerveModule {
     }
 
     public void updatePIDValues(){
-        m_drivePIDController.setP(Config.Swerve.fluid_drive_kP.get());
-        m_drivePIDController.setI(Config.Swerve.fluid_drive_kI.get());
-        m_drivePIDController.setD(Config.Swerve.fluid_drive_kD.get());
-        m_drivePIDController.setIZone(Config.Swerve.fluid_drive_kIZone.get());
-        m_drivePIDController.setFF(Config.Swerve.fluid_drive_kFF.get());
+        m_drivePIDController.setP(Config.Swerve.sub_drive_kP.get());
+        m_drivePIDController.setI(Config.Swerve.sub_drive_kI.get());
+        m_drivePIDController.setD(Config.Swerve.sub_drive_kD.get());
+        m_drivePIDController.setIZone(Config.Swerve.sub_drive_kIZone.get());
+        m_drivePIDController.setFF(Config.Swerve.sub_drive_kFF.get());
 
-        m_turningPIDController.setP(Config.Swerve.fluid_steering_kP.get());
-        m_turningPIDController.setI(Config.Swerve.fluid_steering_kI.get());
-        m_turningPIDController.setD(Config.Swerve.fluid_steering_kD.get());
-        m_turningPIDController.setIZone(Config.Swerve.fluid_steering_kIZone.get());
-        m_turningPIDController.setFF(Config.Swerve.fluid_steering_kFF.get());
+        m_turningPIDController.setP(Config.Swerve.sub_steering_kP.get());
+        m_turningPIDController.setI(Config.Swerve.sub_steering_kI.get());
+        m_turningPIDController.setD(Config.Swerve.sub_steering_kD.get());
+        m_turningPIDController.setIZone(Config.Swerve.sub_steering_kIZone.get());
+        m_turningPIDController.setFF(Config.Swerve.sub_steering_kFF.get());
 
-        feedforward = new SimpleMotorFeedforward(Config.Swerve.fluid_kS.get(), Config.Swerve.fluid_kV.get(), Config.Swerve.fluid_kA.get());
+        feedforward = new SimpleMotorFeedforward(Config.Swerve.sub_drive_kS.get(), Config.Swerve.sub_drive_kV.get(), Config.Swerve.sub_drive_kA.get());
     
     }
 
