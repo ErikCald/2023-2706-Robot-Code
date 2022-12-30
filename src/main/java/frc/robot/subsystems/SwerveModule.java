@@ -27,6 +27,8 @@ import frc.lib3512.util.CANCoderUtil;
 import frc.lib3512.util.CANSparkMaxUtil;
 import frc.lib3512.util.CANCoderUtil.CCUsage;
 import frc.lib3512.util.CANSparkMaxUtil.Usage;
+import frc.robot.ShuffleBoardFaults;
+import frc.robot.ShuffleBoardFaults.Section;
 import frc.robot.config.Config;
 
 public class SwerveModule {
@@ -128,6 +130,11 @@ public class SwerveModule {
         updateSteeringFromCanCoder();
 
         lastAngle = getState().angle.getRadians();
+
+
+        ShuffleBoardFaults.getInstance()
+            .addREVDevice(() -> m_driveMotor.getFaults(), ModuleName + "DriveMotor", Section.Swerve)
+            .addREVDevice(() -> m_turningMotor.getFaults(), ModuleName + "SteeringMotor", Section.Swerve);
     }
 
     /**
