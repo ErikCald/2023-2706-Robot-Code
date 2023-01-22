@@ -27,7 +27,7 @@ public class DriveToVisionTarget extends CommandBase {
     private final DoubleSubscriber visionDistance;
 
     private double targetX;
-    private double targetY;
+    private double prevY;
 
     
 
@@ -52,7 +52,7 @@ public class DriveToVisionTarget extends CommandBase {
     @Override
     public void initialize() {
         targetX = SwerveSubsystem.getInstance().getPose().getX();
-        targetY = SwerveSubsystem.getInstance().getPose().getY();
+        prevY = 0;
     }
 
     // Called every time the scheduler runs while the command is scheduled.
@@ -67,11 +67,11 @@ public class DriveToVisionTarget extends CommandBase {
         }
 
         if (yaw != -99) {
-            targetY = curPose.getY() + distance;
+            prevY = yaw;
         }
 
         double xResult = xPID.calculate(curPose.getX(), targetX);
-        double yResult = yPID.calculate(curPose.getY(), targetY);
+        double yResult = yPID.calculate(prevY, 0);
         double rotResult = headingPID.calculate(curPose.getRotation().getDegrees(), targetHeading);
 
         SwerveSubsystem.getInstance().drive(xResult, yResult, rotResult, true, true);
@@ -90,7 +90,7 @@ public class DriveToVisionTarget extends CommandBase {
         
         return 
             Math.abs(currPose.getX() - targetX) < distanceTolarance &&
-            Math.abs(currPose.getY() - targetY) < distanceTolarance &&
+            Math.abs(currPose.getY() - prevY) < distanceTolarance &&
             Math.abs(currPose.getRotation().getDegrees() - targetHeading) < angleTolarance;
     }
 }
