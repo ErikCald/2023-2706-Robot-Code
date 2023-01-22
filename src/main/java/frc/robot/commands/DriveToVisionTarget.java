@@ -51,6 +51,8 @@ public class DriveToVisionTarget extends CommandBase {
     // Called when the command is initially scheduled.
     @Override
     public void initialize() {
+        targetX = SwerveSubsystem.getInstance().getPose().getX();
+        targetY = SwerveSubsystem.getInstance().getPose().getY();
     }
 
     // Called every time the scheduler runs while the command is scheduled.
