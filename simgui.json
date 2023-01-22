@@ -10,7 +10,29 @@
   },
   "NTProvider": {
     "types": {
-      "/FMSInfo": "FMSInfo"
+      "/FMSInfo": "FMSInfo",
+      "/SmartDashboard/PPSwerveControllerCommand_field": "Field2d"
+    },
+    "windows": {
+      "/SmartDashboard/PPSwerveControllerCommand_field": {
+        "traj": {
+          "arrows": false,
+          "style": "Line"
+        },
+        "window": {
+          "visible": true
+        }
+      }
+    }
+  },
+  "NetworkTables": {
+    "transitory": {
+      "SmartDashboard": {
+        "PPSwerveControllerCommand_field": {
+          "open": true
+        },
+        "open": true
+      }
     }
   }
 }
