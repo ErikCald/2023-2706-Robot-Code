@@ -147,6 +147,7 @@ public class ArmSubsystem extends SubsystemBase {
         m_arm.setAngle(Units.radiansToDegrees(m_encoder0.getPosition()));
     }
 
+    @Override
     public void simulationPeriodic() {
         // In this method, we update our simulation of what our arm is doing
         // First, we set our "inputs" (voltages)
