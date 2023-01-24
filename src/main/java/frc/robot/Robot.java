@@ -4,6 +4,9 @@
 
 package frc.robot;
 
+import com.revrobotics.REVPhysicsSim;
+
+import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -21,6 +24,7 @@ import frc.robot.robotcontainers.MergonautContainer;
 import frc.robot.robotcontainers.MiniNeoDiffContainer;
 import frc.robot.robotcontainers.MiniSwerveContainer;
 import frc.robot.robotcontainers.RobotContainer;
+import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.DiffNeoSubsystem;
 import frc.robot.subsystems.DiffTalonSubsystem;
 

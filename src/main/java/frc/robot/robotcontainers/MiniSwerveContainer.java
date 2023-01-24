@@ -11,13 +11,16 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.Robot;
 import frc.robot.auto.AutoSelector;
+import frc.robot.commands.ArmXZ;
 import frc.robot.commands.ModuleAngleFromJoystick;
 import frc.robot.commands.ResetGyro;
 import frc.robot.commands.SwerveTeleop;
 import frc.robot.config.Config;
+import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.SwerveModule;
 import frc.robot.subsystems.SwerveSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -87,6 +90,10 @@ public class MiniSwerveContainer extends RobotContainer{
 
     // Command angleSetPoint5 = new RunCommand(() -> SwerveSubsystem.getInstance().setModuleStates(new SwerveModuleState[]{state4, state4, state4, state4}, true), SwerveSubsystem.getInstance());
     // new JoystickButton(driver, XboxController.Button.kLeftBumper.value).whenHeld(angleSetPoint5).whenReleased(new InstantCommand(SwerveSubsystem.getInstance() :: stopMotors, SwerveSubsystem.getInstance()));
+  
+    
+    // Command simArmDisabled =  Commands.run(() -> ArmSubsystem.getInstance().updateSimulation(), ArmSubsystem.getInstance()).ignoringDisable(true);
+    // ArmSubsystem.getInstance().setDefaultCommand(simArmDisabled);
   }
 
 
@@ -97,7 +104,8 @@ public class MiniSwerveContainer extends RobotContainer{
    */
   @Override
   public Command getAutonomousCommand() {
-    return m_autoSelector.getAutoCommand();
+    return new ArmXZ(120, 0).withTimeout(2).andThen(new ArmXZ(45, 0));
+    //m_autoSelector.getAutoCommand();
   }
 
 
