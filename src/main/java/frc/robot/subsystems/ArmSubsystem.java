@@ -31,11 +31,15 @@ import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class ArmSubsystem extends SubsystemBase {
+    /*
+     * Public Constants
+     */
+    public static final double m_arm0Mass = 5.0; // Kilograms
+    public static final double m_arm0Length = Units.inchesToMeters(30);
+    public static final double m_arm0Noise = 2.0 * Math.PI / 4096;
+    public static final double m_arm0Reduction = 60;
+
     private final double voltsAtHorizontalJoint1 = 3;
-    private static final double m_arm0Reduction = 60;
-    private static final double m_arm0Mass = 5.0; // Kilograms
-    private static final double m_arm0Length = Units.inchesToMeters(30);
-    private static final double m_arm0Noise = 2.0 * Math.PI / 4096;
     private final double encoder0PosConversion = 2 * Math.PI / m_arm0Reduction;
     private final double encoder1PosConversion = 2 * Math.PI / 24;
 
@@ -51,40 +55,6 @@ public class ArmSubsystem extends SubsystemBase {
     ProfiledPIDController m_pid0;
     ProfiledPIDController m_pid1;
 
-
-    //
-    // Create a Mechanism2d display of an Arm with a fixed ArmTower and moving Arm.
-    private final Mechanism2d m_mech2d = new Mechanism2d(60, 60);
-    private final MechanismRoot2d m_armPivot = m_mech2d.getRoot("ArmPivot", 30, 30);
-    private final MechanismLigament2d m_armTower =
-    m_armPivot.append(new MechanismLigament2d("ArmTower", 30, -90));
-    private final MechanismLigament2d m_arm =
-    m_armPivot.append(
-        new MechanismLigament2d(
-            "Arm",
-            30,
-            90,
-            6,
-            new Color8Bit(Color.kYellow)));
-
-    // Simulation classes help us simulate what's going on, including gravity.
-  
-  // This arm sim represents an arm that can travel from -75 degrees (rotated down front)
-  // to 255 degrees (rotated down in the back).
-  private final SingleJointedArmSim m_armSim =
-      new SingleJointedArmSim(
-          DCMotor.getNEO(1),
-          m_arm0Reduction,
-          SingleJointedArmSim.estimateMOI(m_arm0Length, m_arm0Mass),
-          m_arm0Length,
-          Units.degreesToRadians(-75),
-          Units.degreesToRadians(255),
-          m_arm0Mass,
-          true,
-          VecBuilder.fill(m_arm0Noise) // Add noise with a std-dev of 1 tick
-          );
-
-    //
     private static ArmSubsystem INSTANCE;
     public static ArmSubsystem getInstance() {
         if (INSTANCE == null) {
@@ -127,41 +97,38 @@ public class ArmSubsystem extends SubsystemBase {
             0, 0, 0, 
             new TrapezoidProfile.Constraints(0, 0));
 
-
-        // Put Mechanism 2d to SmartDashboard
-        SmartDashboard.putData("Arm Sim", m_mech2d);
-        m_armTower.setColor(new Color8Bit(Color.kBlue));
-    }
-
-    public CANSparkMax getMotor0() {
-        return m_motor0;
-    }
-
-    public CANSparkMax getMotor1() {
-        return m_motor1;
     }
 
     @Override
     public void periodic() {
         // Update the Mechanism Arm angle based on the simulated arm angle
-        m_arm.setAngle(Units.radiansToDegrees(m_encoder0.getPosition()));
+        ArmDisplay.getInstance().updateFromJointAngles(
+            m_encoder0.getPosition(),
+            m_encoder1.getPosition()
+        );
     }
 
     @Override
     public void simulationPeriodic() {
         // In this method, we update our simulation of what our arm is doing
         // First, we set our "inputs" (voltages)
-        m_armSim.setInput(m_motor0.getAppliedOutput() * RobotController.getBatteryVoltage()); 
+        ArmSim.getInstance().getJ0().setInput(m_motor0.getAppliedOutput() * RobotController.getBatteryVoltage()); 
+        ArmSim.getInstance().getJ1().setInput(m_motor1.getAppliedOutput() * RobotController.getBatteryVoltage()); 
 
         // Next, we update it. The standard loop time is 20ms.
-        m_armSim.update(0.020);
+        ArmSim.getInstance().getJ0().update(0.020);
+        ArmSim.getInstance().getJ1().update(0.020);
 
         // Finally, we set our simulated encoder's readings and simulated battery voltage
-        m_encoder0.setPosition(m_armSim.getAngleRads());
+        m_encoder0.setPosition(ArmSim.getInstance().getJ0().getAngleRads());
+        m_encoder1.setPosition(ArmSim.getInstance().getJ1().getAngleRads());
 
         // SimBattery estimates loaded battery voltages
         RoboRioSim.setVInVoltage(
-            BatterySim.calculateDefaultBatteryLoadedVoltage(m_armSim.getCurrentDrawAmps()));
+            BatterySim.calculateDefaultBatteryLoadedVoltage(
+                ArmSim.getInstance().getJ0().getCurrentDrawAmps(),
+                ArmSim.getInstance().getJ1().getCurrentDrawAmps()
+        ));
     }
 
 
@@ -188,9 +155,7 @@ public class ArmSubsystem extends SubsystemBase {
                             calculateFeedforwardJointOne();
 
         m_sparkPid0.setReference(voltage0, ControlType.kVoltage);
-        // m_sparkPid1.setReference(voltage1, ControlType.kVoltage);
-
-        // updateSimulation();
+        m_sparkPid1.setReference(voltage1, ControlType.kVoltage);
     }
 
     private double calculateFeedforwardJointOne() {
@@ -212,8 +177,5 @@ public class ArmSubsystem extends SubsystemBase {
         // Need to set the reference to 0 for the simulation
         m_sparkPid0.setReference(0, ControlType.kVoltage);
         m_sparkPid1.setReference(0, ControlType.kVoltage);
-
     }
-
-
 }
